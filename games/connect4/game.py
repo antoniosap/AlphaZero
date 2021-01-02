@@ -226,6 +226,3 @@ class GameState():
 		for r in range(6):
 			logger.info([self.pieces[str(x)] for x in self.board[7*r : (7*r + 7)]])
 		logger.info('--------------')
-
-
-

@@ -2,24 +2,51 @@ import numpy as np
 import logging
 
 init_state = (
-    ( 1,  2, 11,  3,  4,  6, 16,  7),
-    (10, 25, 13, 12,  5,  0, 14,  8),
-    ( 9, 20, 18, 27, 22, 23, 15, 24),
+    (1, 2, 11, 3, 4, 6, 16, 7),
+    (10, 25, 13, 12, 5, 0, 14, 8),
+    (9, 20, 18, 27, 22, 23, 15, 24),
     (17, 26, 19, 28, 21, 29, 30, 31),
 )
 
 final_state = (
-    ( 1,  2,  3,  4,  5,  6,  7,  8),
-    ( 9, 10, 11, 12, 13, 14, 15, 16),
+    (1, 2, 3, 4, 5, 6, 7, 8),
+    (9, 10, 11, 12, 13, 14, 15, 16),
     (17, 18, 19, 20, 21, 22, 23, 24),
-    (25, 26, 27, 28, 29, 30, 31,  0),
+    (25, 26, 27, 28, 29, 30, 31, 0),
 )
+
+EMPTY_TILE = 0
 
 
 def load_state(state_2d):
     return np.array(state_2d, dtype=np.int).flatten()
 
+
 final_board = load_state(final_state)
+
+
+def clone_and_swap(state_2d, y0, y1):
+    clone = np.copy(state_2d)
+    clone[y0], clone[y1] = clone[y1], clone[y0]
+    return clone
+
+
+def possible_moves(state_2d, size_cols):
+    res = []
+    y = np.where(state_2d == EMPTY_TILE)[0][0]
+    if y % size_cols > 0:
+        left = clone_and_swap(state_2d, y, y - 1)
+        res.append(left)
+    if y % size_cols + 1 < size_cols:
+        right = clone_and_swap(state_2d, y, y + 1)
+        res.append(right)
+    if y - size_cols >= 0:
+        up = clone_and_swap(state_2d, y, y - size_cols)
+        res.append(up)
+    if y + size_cols < np.size(state_2d):
+        down = clone_and_swap(state_2d, y, y + size_cols)
+        res.append(down)
+    return res
 
 
 class Game:
@@ -83,18 +110,18 @@ class GameState:
 
     def _allowedActions(self):
         allowed = []
-        for i in range(len(self.board)):
-            if i >= len(self.board) - 7:
-                if self.board[i] == 0:
-                    allowed.append(i)
-            else:
-                if self.board[i] == 0 and self.board[i + 7] != 0:
-                    allowed.append(i)
-
+        y = np.where(self.board == EMPTY_TILE)[0][0]
+        if y % size_cols > 0:
+            allowed.append(y - 1)
+        if y % size_cols + 1 < size_cols:
+            allowed.append(y + 1)
+        if y - size_cols >= 0:
+            allowed.append(y - size_cols)
+        if y + size_cols < np.size(self.board):
+            allowed.append(y + size_cols)
         return allowed
 
     def _binary(self):
-
         currentplayer_position = np.zeros(len(self.board), dtype=np.int)
         currentplayer_position[self.board == self.playerTurn] = 1
 
@@ -102,7 +129,6 @@ class GameState:
         other_position[self.board == -self.playerTurn] = 1
 
         position = np.append(currentplayer_position, other_position)
-
         return position
 
     def _convertStateToId(self):
