@@ -21,7 +21,7 @@ class Node():
             return True
 
 
-class Edge():
+class Edge:
 
     def __init__(self, inNode, outNode, prior, action):
         self.id = inNode.state.id + '|' + outNode.state.id
@@ -38,7 +38,7 @@ class Edge():
         }
 
 
-class MCTS():
+class MCTS:
 
     def __init__(self, root, cpuct):
         self.root = root
