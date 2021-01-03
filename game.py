@@ -149,15 +149,19 @@ class GameState:
 
     def _getValue(self):
         if self._checkForEndGame():
-            return (-1, -1, 1)
+            return -1, -1, 1
         else:
-            return (0, 0, 0)
+            return 0, 0, 0
 
     def _getScore(self):
         tmp = self.value
-        return (tmp[1], tmp[2])
+        return tmp[1], tmp[2]
 
     def takeAction(self, action):
+        #
+        # TODO qui va fatto lo swap e non il posizionamento del player 1, -1
+        #
+
         newBoard = np.array(self.board)
         newBoard[action] = self.playerTurn
 
@@ -170,7 +174,7 @@ class GameState:
             value = newState.value[0]
             done = 1
 
-        return (newState, value, done)
+        return newState, value, done
 
     def render(self, logger):
         board = np.reshape(self.board, (self.size_rows, self.size_cols))
