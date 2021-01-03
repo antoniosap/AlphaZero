@@ -158,12 +158,10 @@ class GameState:
         return tmp[1], tmp[2]
 
     def takeAction(self, action):
-        #
-        # TODO qui va fatto lo swap e non il posizionamento del player 1, -1
-        #
-
+        # swap
         newBoard = np.array(self.board)
-        newBoard[action] = self.playerTurn
+        y = np.where(newBoard == EMPTY_TILE)[0][0]
+        newBoard[action], newBoard[y] = newBoard[y], newBoard[action]
 
         newState = GameState(self.size_rows, self.size_cols, newBoard, self.pieces, -self.playerTurn)
 
