@@ -132,6 +132,9 @@ class GameState:
         return position
 
     def _convertStateToId(self):
+        #
+        # TODO modificare per n-puzzle, mettere un hash ?
+        #
         player1_position = np.zeros(len(self.board), dtype=np.int)
         player1_position[self.board == 1] = 1
 
