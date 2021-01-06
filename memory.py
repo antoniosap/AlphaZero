@@ -3,6 +3,7 @@ from collections import deque
 
 import config
 
+
 class Memory:
 	def __init__(self, MEMORY_SIZE):
 		self.MEMORY_SIZE = config.MEMORY_SIZE
@@ -26,4 +27,3 @@ class Memory:
 
 	def clear_stmemory(self):
 		self.stmemory = deque(maxlen=config.MEMORY_SIZE)
-		

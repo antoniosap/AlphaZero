@@ -47,8 +47,9 @@ else:
 ######## LOAD MODEL IF NECESSARY ########
 
 # create an untrained neural network objects from the config file
-current_NN = Residual_CNN(config.REG_CONST, config.LEARNING_RATE, (2,) + env.grid_shape, env.action_size, config.HIDDEN_CNN_LAYERS)
-best_NN = Residual_CNN(config.REG_CONST, config.LEARNING_RATE, (2,) + env.grid_shape, env.action_size, config.HIDDEN_CNN_LAYERS)
+grid_shape = (1,) + env.grid_shape  # (2,) + env.grid_shape <--- 2 = num players
+current_NN = Residual_CNN(config.REG_CONST, config.LEARNING_RATE, grid_shape, env.action_size, config.HIDDEN_CNN_LAYERS)
+best_NN = Residual_CNN(config.REG_CONST, config.LEARNING_RATE, grid_shape, env.action_size, config.HIDDEN_CNN_LAYERS)
 
 # If loading an existing neural netwrok, set the weights from that model
 if initialise.INITIAL_MODEL_VERSION is not None:
@@ -64,7 +65,7 @@ else:
 
 # copy the config file to the run folder
 copyfile('./config.py', run_folder + 'config.py')
-# plot_model(current_NN.model, to_file=run_folder + 'models/model.png', show_shapes = True)  # <--- error
+# plot_model(current_NN.model, to_file=run_folder + 'models/model.png', show_shapes = True)  # <--- plot error
 
 print('\n')
 
@@ -88,7 +89,8 @@ while 1:
 
     ######## SELF PLAY ########
     print('SELF PLAYING ' + str(config.EPISODES) + ' EPISODES...')
-    _, memory, _, _ = playMatches(best_player, best_player, config.EPISODES, lg.logger_main, turns_until_tau0=config.TURNS_UNTIL_TAU0, memory=memory)
+    _, memory, _, _ = playMatches(best_player, best_player, config.EPISODES, lg.logger_main,
+                                  turns_until_tau0=config.TURNS_UNTIL_TAU0, memory=memory)
     print('\n')
 
     memory.clear_stmemory()

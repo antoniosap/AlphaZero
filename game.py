@@ -1,5 +1,6 @@
 import numpy as np
 import logging
+import hashlib
 
 init_state = (
     (1,   2, 11,  3,  4,  6, 16,  7),
@@ -60,8 +61,8 @@ class Game:
         self.gameState = None
         self.reset()
         self.actionSpace = load_state(init_state)
-        self.grid_shape = (self.cols, self.rows)
-        self.input_shape = (2, self.cols, self.rows)
+        self.grid_shape = (self.rows, self.cols)
+        self.input_shape = (1,) + self.grid_shape
         self.name = 'n-puzzle'
         self.state_size = len(self.gameState.binary)
         self.action_size = len(self.actionSpace)
@@ -80,7 +81,9 @@ class Game:
     def step(self, action):
         next_state, value, done = self.gameState.takeAction(action)
         self.gameState = next_state
-        self.currentPlayer = -self.currentPlayer
+        # TWO PLAYERS self.currentPlayer = -self.currentPlayer
+        self.currentPlayer = 1
+        #
         info = None
         return next_state, value, done, info
 
@@ -90,7 +93,7 @@ class Game:
         currentAV = actionValues
         currentBoard = np.array([currentBoard[i] for i in range(self.cols * self.rows)])
         currentAV = np.array([currentAV[i] for i in range(self.cols * self.rows)])
-        identities.append((GameState(currentBoard, state.playerTurn), currentAV))
+        identities.append((GameState(self.rows, self.cols, currentBoard, self.pieces, state.playerTurn), currentAV))
         return identities
 
 
@@ -122,29 +125,11 @@ class GameState:
         return allowed
 
     def _binary(self):
-        currentplayer_position = np.zeros(len(self.board), dtype=np.int)
-        currentplayer_position[self.board == self.playerTurn] = 1
-
-        other_position = np.zeros(len(self.board), dtype=np.int)
-        other_position[self.board == -self.playerTurn] = 1
-
-        position = np.append(currentplayer_position, other_position)
-        return position
+        return self.board
 
     def _convertStateToId(self):
-        #
-        # TODO modificare per n-puzzle, mettere un hash ?
-        #
-        player1_position = np.zeros(len(self.board), dtype=np.int)
-        player1_position[self.board == 1] = 1
-
-        other_position = np.zeros(len(self.board), dtype=np.int)
-        other_position[self.board == -1] = 1
-
-        position = np.append(player1_position, other_position)
-
-        id = ''.join(map(str, position))
-
+        board_str = ''.join(map(lambda x: "{:03d}".format(x), self.board))
+        id = hashlib.sha256(board_str.encode('utf-8')).hexdigest()
         return id
 
     def _checkForEndGame(self):
@@ -166,7 +151,11 @@ class GameState:
         y = np.where(newBoard == EMPTY_TILE)[0][0]
         newBoard[action], newBoard[y] = newBoard[y], newBoard[action]
 
-        newState = GameState(self.size_rows, self.size_cols, newBoard, self.pieces, -self.playerTurn)
+        # TWO PLAYERS
+        # newState = GameState(self.size_rows, self.size_cols, newBoard, self.pieces, -self.playerTurn)
+        # SINGLE PLAYER
+        newState = GameState(self.size_rows, self.size_cols, newBoard, self.pieces, self.playerTurn)
+        #
 
         value = 0
         done = 0

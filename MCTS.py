@@ -1,20 +1,21 @@
 import numpy as np
 import logging
 import config
+import hashlib
 
 from utils import setup_logger
 import loggers as lg
 
 
-class Node():
-
+class Node:
     def __init__(self, state):
         self.state = state
         self.playerTurn = state.playerTurn
-        self.id = state.id
+        self.id = hashlib.sha256(str(state.id).encode('utf-8')).hexdigest()
         self.edges = []
 
     def isLeaf(self):
+        # TODO ottimizzare
         if len(self.edges) > 0:
             return False
         else:
@@ -22,7 +23,6 @@ class Node():
 
 
 class Edge:
-
     def __init__(self, inNode, outNode, prior, action):
         self.id = inNode.state.id + '|' + outNode.state.id
         self.inNode = inNode
@@ -39,7 +39,6 @@ class Edge:
 
 
 class MCTS:
-
     def __init__(self, root, cpuct):
         self.root = root
         self.tree = {}
@@ -50,7 +49,6 @@ class MCTS:
         return len(self.tree)
 
     def moveToLeaf(self):
-
         lg.logger_mcts.info('------MOVING TO LEAF------')
 
         breadcrumbs = []
@@ -60,10 +58,9 @@ class MCTS:
         value = 0
 
         while not currentNode.isLeaf():
-
             lg.logger_mcts.info('PLAYER TURN...%d', currentNode.state.playerTurn)
 
-            maxQU = -99999
+            maxQU = float('-inf')
 
             if currentNode == self.root:
                 epsilon = config.EPSILON
@@ -101,7 +98,6 @@ class MCTS:
             breadcrumbs.append(simulationEdge)
 
         lg.logger_mcts.info('DONE...%d', done)
-
         return currentNode, value, done, breadcrumbs
 
     def backFill(self, leaf, value, breadcrumbs):

@@ -34,7 +34,7 @@ def playMatchesBetweenVersions(env, run_version, player1version, player2version,
 
     scores, memory, points, sp_scores = playMatches(player1, player2, EPISODES, logger, turns_until_tau0, None, goes_first)
 
-    return (scores, memory, points, sp_scores)
+    return scores, memory, points, sp_scores
 
 
 def playMatches(player1, player2, EPISODES, logger, turns_until_tau0, memory=None, goes_first=0):
@@ -64,14 +64,10 @@ def playMatches(player1, player2, EPISODES, logger, turns_until_tau0, memory=Non
             player1Starts = goes_first
 
         if player1Starts == 1:
-            players = {1: {"agent": player1, "name": player1.name}
-                , -1: {"agent": player2, "name": player2.name}
-                       }
+            players = {1: {"agent": player1, "name": player1.name}, -1: {"agent": player2, "name": player2.name}}
             logger.info(player1.name + ' plays as 1')
         else:
-            players = {1: {"agent": player2, "name": player2.name}
-                , -1: {"agent": player1, "name": player1.name}
-                       }
+            players = {1: {"agent": player2, "name": player2.name}, -1: {"agent": player1, "name": player1.name}}
             logger.info(player2.name + ' plays as 2')
             logger.info('--------------')
 
@@ -99,8 +95,7 @@ def playMatches(player1, player2, EPISODES, logger, turns_until_tau0, memory=Non
             logger.info('====================')
 
             ### Do the action
-            state, value, done, _ = env.step(
-                action)  # the value of the newState from the POV of the new playerTurn i.e. -1 if the previous player played a winning move
+            state, value, done, _ = env.step(action)  # the value of the newState from the POV of the new playerTurn i.e. -1 if the previous player played a winning move
 
             env.gameState.render(logger)
 
@@ -141,4 +136,4 @@ def playMatches(player1, player2, EPISODES, logger, turns_until_tau0, memory=Non
                 points[players[state.playerTurn]['name']].append(pts[0])
                 points[players[-state.playerTurn]['name']].append(pts[1])
 
-    return (scores, memory, points, sp_scores)
+    return scores, memory, points, sp_scores
