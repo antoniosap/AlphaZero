@@ -1,14 +1,13 @@
 import numpy as np
 import random
-
+import time
 import loggers as lg
-
 from game import Game, GameState
 from model import Residual_CNN
-
 from agent import Agent, User
-
 import config
+
+EPISODE_TIMEOUT_SEC = 60  # timeout for n-puzzle episodes
 
 
 def playMatchesBetweenVersions(env, run_version, player1version, player2version, EPISODES, logger, turns_until_tau0, goes_first=0):
@@ -44,13 +43,12 @@ def playMatches(player1, player2, EPISODES, logger, turns_until_tau0, memory=Non
     points = {player1.name: [], player2.name: []}
 
     for e in range(EPISODES):
-
         logger.info('====================')
         logger.info('EPISODE %d OF %d', e + 1, EPISODES)
         logger.info('====================')
+        print(str(e + 1) + '>>', end='')
 
-        print(str(e + 1) + ' ', end='')
-
+        t_start = time.time()  # timeout for n-puzzle
         state = env.reset()
 
         done = 0
@@ -66,6 +64,7 @@ def playMatches(player1, player2, EPISODES, logger, turns_until_tau0, memory=Non
         if player1Starts == 1:
             players = {1: {"agent": player1, "name": player1.name}, -1: {"agent": player2, "name": player2.name}}
             logger.info(player1.name + ' plays as 1')
+
         else:
             players = {1: {"agent": player2, "name": player2.name}, -1: {"agent": player1, "name": player1.name}}
             logger.info(player2.name + ' plays as 2')
@@ -82,8 +81,8 @@ def playMatches(player1, player2, EPISODES, logger, turns_until_tau0, memory=Non
             else:
                 action, pi, MCTS_value, NN_value = players[state.playerTurn]['agent'].act(state, 0)
 
-            if memory != None:
-                ####Commit the move to memory
+            if memory is not None:
+                #### Commit the move to memory
                 memory.commit_stmemory(env.identities, state, pi)
 
             logger.info('action: %d', action)
@@ -95,12 +94,20 @@ def playMatches(player1, player2, EPISODES, logger, turns_until_tau0, memory=Non
             logger.info('====================')
 
             ### Do the action
-            state, value, done, _ = env.step(action)  # the value of the newState from the POV of the new playerTurn i.e. -1 if the previous player played a winning move
+            # the value of the newState from the POV of the new playerTurn i.e. -1 if the previous player played a winning move
+            state, value, done, _ = env.step(action)
 
             env.gameState.render(logger)
 
+            if time.time() - t_start > EPISODE_TIMEOUT_SEC:
+                t_start = time.time()
+                msg = logger.info('EPISODE TIMEOUT')
+                logger.info(msg)
+                print(msg)
+                done = 1
+
             if done == 1:
-                if memory != None:
+                if memory is not None:
                     #### If the game is finished, assign the values correctly to the game moves
                     for move in memory.stmemory:
                         if move['playerTurn'] == state.playerTurn:

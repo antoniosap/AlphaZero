@@ -53,7 +53,6 @@ class Agent():
         self.val_policy_loss = []
 
     def simulate(self):
-
         lg.logger_mcts.info('ROOT NODE...%s', self.mcts.root.state.id)
         self.mcts.root.state.render(lg.logger_mcts)
         lg.logger_mcts.info('CURRENT PLAYER...%d', self.mcts.root.state.playerTurn)
@@ -69,7 +68,6 @@ class Agent():
         self.mcts.backFill(leaf, value, breadcrumbs)
 
     def act(self, state, tau):
-
         if self.mcts == None or state.id not in self.mcts.tree:
             self.buildMCTS(state)
         else:
