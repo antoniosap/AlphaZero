@@ -82,6 +82,7 @@ def playMatches(player1, player2, EPISODES, logger, turns_until_tau0, memory=Non
                 action, pi, MCTS_value, NN_value = players[state.playerTurn]['agent'].act(state, 0)
 
             if memory is not None:
+
                 #### Commit the move to memory
                 memory.commit_stmemory(env.identities, state, pi)
 
@@ -101,7 +102,7 @@ def playMatches(player1, player2, EPISODES, logger, turns_until_tau0, memory=Non
 
             if time.time() - t_start > EPISODE_TIMEOUT_SEC:
                 t_start = time.time()
-                msg = logger.info('EPISODE TIMEOUT')
+                msg = 'EPISODE TIMEOUT'
                 logger.info(msg)
                 print(msg)
                 done = 1
