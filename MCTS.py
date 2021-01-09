@@ -6,6 +6,9 @@ import hashlib
 from utils import setup_logger
 import loggers as lg
 
+from game import final_board
+from heuristics import hamming_delta
+
 
 class Node:
     def __init__(self, state):
@@ -79,6 +82,7 @@ class MCTS:
                     ((1 - epsilon) * edge.stats['P'] + epsilon * nu[idx]) * \
                     np.sqrt(Nb) / (1 + edge.stats['N'])
 
+
                 Q = edge.stats['Q']
 
                 lg.logger_mcts.info('action: %d N = %d, P = %f, nu = %f, adjP = %f, W = %f, Q = %f, U = %f, Q+U = %f'
@@ -116,12 +120,19 @@ class MCTS:
             edge.stats['W'] = edge.stats['W'] + value * direction
             edge.stats['Q'] = edge.stats['W'] / edge.stats['N']
 
-            lg.logger_mcts.info('updating edge with value %f for player %d... N = %d, W = %f, Q = %f'
-                                , value * direction
-                                , playerTurn
-                                , edge.stats['N']
-                                , edge.stats['W']
-                                , edge.stats['Q']
+            # mod
+            # h_delta = hamming_delta(edge.inNode.state.board, edge.outNode.state.board, final_board, size_rows=4, size_cols=8)
+            # h_prob = 1 - h_delta
+            # edge.stats['Q'] += h_prob
+            #
+
+            lg.logger_mcts.info('updating edge with value %f for player %d: h_prob = %f N = %d, W = %f, Q = %f',
+                                value * direction,
+                                playerTurn,
+                                h_prob,
+                                edge.stats['N'],
+                                edge.stats['W'],
+                                edge.stats['Q'],
                                 )
 
             edge.outNode.state.render(lg.logger_mcts)
